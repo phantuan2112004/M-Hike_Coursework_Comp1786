@@ -42,7 +42,6 @@ public class HikeAdapter extends RecyclerView.Adapter<HikeAdapter.HikeViewHolder
         holder.tvLocation.setText("Location: " + hike.getLocation());
         holder.tvDate.setText("Date: " + hike.getDate());
 
-        // Xử lý sự kiện nút Xóa
         holder.btnDelete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Delete Hike")
@@ -59,7 +58,9 @@ public class HikeAdapter extends RecyclerView.Adapter<HikeAdapter.HikeViewHolder
         });
 
         holder.itemView.setOnClickListener(v -> {
-            Toast.makeText(context, "Clicked: " + hike.getName(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context, HikeDetailActivity.class);
+            intent.putExtra("HIKE_ID", hike.getId());
+            context.startActivity(intent);
         });
     }
 

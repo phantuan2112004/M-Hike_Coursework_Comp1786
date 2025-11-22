@@ -39,7 +39,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Tạo bảng HIKES
         String createHikes = "CREATE TABLE " + TABLE_HIKES + " (" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_NAME + " TEXT, " +
@@ -117,6 +116,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return hikeList;
     }
 
+    public Hike getHike(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_HIKES, null, COL_ID + " = ?", new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor != null) cursor.moveToFirst();
+
+        Hike hike = new Hike(
+                cursor.getInt(0),
+                cursor.getString(1),
+                cursor.getString(2),
+                cursor.getString(3),
+                cursor.getString(4),
+                cursor.getString(5),
+                cursor.getString(6),
+                cursor.getString(7),
+                cursor.getString(8),
+                cursor.getString(9)
+        );
+        cursor.close();
+        return hike;
+    }
+
+    public void updateHike(Hike hike) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, hike.getName());
+        values.put(COL_LOCATION, hike.getLocation());
+        values.put(COL_DATE, hike.getDate());
+        values.put(COL_PARKING, hike.getParking());
+        values.put(COL_LENGTH, hike.getLength());
+        values.put(COL_DIFFICULTY, hike.getDifficulty());
+        values.put(COL_DESC, hike.getDescription());
+        values.put(COL_WEATHER, hike.getWeather());
+        values.put(COL_COMPANIONS, hike.getCompanions());
+
+        db.update(TABLE_HIKES, values, COL_ID + " = ?", new String[]{String.valueOf(hike.getId())});
+        db.close();
+    }
+
     public void resetDatabase() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_OBS);
@@ -129,5 +167,125 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_OBS, COL_HIKE_ID_FK + " = ?", new String[]{String.valueOf(hikeId)});
         db.delete(TABLE_HIKES, COL_ID + " = ?", new String[]{String.valueOf(hikeId)});
         db.close();
+    }
+
+    public long insertObservation(int hikeId, String observation, String time, String comments) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_HIKE_ID_FK, hikeId);
+        values.put(COL_OBSERVATION, observation);
+        values.put(COL_TIME, time);
+        values.put(COL_COMMENTS, comments);
+
+        long id = db.insert(TABLE_OBS, null, values);
+        db.close();
+        return id;
+    }
+    public List<Observation> getObservationsByHikeId(int hikeId) {
+        List<Observation> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        // Lọc theo hike_id
+        Cursor cursor = db.query(TABLE_OBS, null, COL_HIKE_ID_FK + "=?",
+                new String[]{String.valueOf(hikeId)}, null, null, COL_OBS_ID + " DESC");
+
+        if (cursor.moveToFirst()) {
+            do {
+                Observation obs = new Observation(
+                        cursor.getInt(0), // id
+                        cursor.getInt(1), // hikeId
+                        cursor.getString(2), // observation name
+                        cursor.getString(3), // time
+                        cursor.getString(4)  // comments
+                );
+                list.add(obs);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
+    public void updateObservation(Observation obs) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_OBSERVATION, obs.getObservation());
+        values.put(COL_TIME, obs.getTime());
+        values.put(COL_COMMENTS, obs.getComments());
+
+        db.update(TABLE_OBS, values, COL_OBS_ID + "=?", new String[]{String.valueOf(obs.getId())});
+        db.close();
+    }
+    public void deleteObservation(int obsId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_OBS, COL_OBS_ID + "=?", new String[]{String.valueOf(obsId)});
+        db.close();
+    }
+
+    public List<Hike> searchHikes(String keyword) {
+        List<Hike> hikeList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_HIKES + " WHERE " + COL_NAME + " LIKE ?", new String[]{"%" + keyword + "%"});
+
+        if (cursor.moveToFirst()) {
+            do {
+                Hike hike = new Hike(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4),
+                        cursor.getString(5),
+                        cursor.getString(6),
+                        cursor.getString(7),
+                        cursor.getString(8),
+                        cursor.getString(9)
+                );
+                hikeList.add(hike);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return hikeList;
+    }
+
+    public List<Hike> searchAdvanced(String name, String location, String length, String date) {
+        List<Hike> hikeList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT * FROM " + TABLE_HIKES + " WHERE " +
+                COL_NAME + " LIKE ? AND " +
+                COL_LOCATION + " LIKE ? AND " +
+                COL_LENGTH + " LIKE ? AND " +
+                COL_DATE + " LIKE ?";
+
+        String[] args = new String[]{
+                "%" + name + "%",
+                "%" + location + "%",
+                "%" + length + "%",
+                "%" + date + "%"
+        };
+
+        Cursor cursor = db.rawQuery(query, args);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Hike hike = new Hike(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4),
+                        cursor.getString(5),
+                        cursor.getString(6),
+                        cursor.getString(7),
+                        cursor.getString(8),
+                        cursor.getString(9)
+                );
+                hikeList.add(hike);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return hikeList;
     }
 }

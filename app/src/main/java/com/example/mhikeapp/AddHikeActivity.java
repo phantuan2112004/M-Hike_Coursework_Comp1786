@@ -1,12 +1,10 @@
 package com.example.mhikeapp;
 
 import android.app.DatePickerDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -19,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.Calendar;
 
 public class AddHikeActivity extends AppCompatActivity {
-
     EditText etName, etLocation, etDate, etLength, etDesc, etWeather, etCompanions;
     RadioGroup radioGroupParking;
     RadioButton radioYes, radioNo;
@@ -27,6 +24,8 @@ public class AddHikeActivity extends AppCompatActivity {
     Button btnSave;
 
     DatabaseHelper dbHelper;
+
+    int hikeId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,14 +35,23 @@ public class AddHikeActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
 
         initViews();
-
         setupSpinner();
 
         etDate.setOnClickListener(v -> showDatePicker());
 
+        if (getIntent().hasExtra("HIKE_ID")) {
+            hikeId = getIntent().getIntExtra("HIKE_ID", -1);
+            loadHikeDataForEdit(hikeId);
+            btnSave.setText("Update Hike");
+        }
+
         btnSave.setOnClickListener(v -> {
             if (validateInput()) {
-                showConfirmationDialog();
+                if (hikeId != -1) {
+                    updateHikeInDatabase();
+                } else {
+                    showConfirmationDialog();
+                }
             }
         });
     }
@@ -80,11 +88,70 @@ public class AddHikeActivity extends AppCompatActivity {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 (view, year1, month1, dayOfMonth) -> {
-                    // Month bắt đầu từ 0 nên cần +1
                     String selectedDate = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
                     etDate.setText(selectedDate);
                 }, year, month, day);
         datePickerDialog.show();
+    }
+    private void loadHikeDataForEdit(int id) {
+        Hike hike = dbHelper.getHike(id);
+        if (hike == null) return;
+
+        etName.setText(hike.getName());
+        etLocation.setText(hike.getLocation());
+        etDate.setText(hike.getDate());
+        etLength.setText(hike.getLength());
+        etDesc.setText(hike.getDescription());
+        etWeather.setText(hike.getWeather());
+        etCompanions.setText(hike.getCompanions());
+
+        // Set RadioButton
+        if (hike.getParking() != null && hike.getParking().equals("Yes")) {
+            radioYes.setChecked(true);
+        } else {
+            radioNo.setChecked(true);
+        }
+
+        String diff = hike.getDifficulty();
+        if (diff != null) {
+            if (diff.equals("Medium")) spinnerDifficulty.setSelection(1);
+            else if (diff.equals("Low")) spinnerDifficulty.setSelection(2);
+            else spinnerDifficulty.setSelection(0); // Mặc định High
+        }
+    }
+
+    private void updateHikeInDatabase() {
+        String name = etName.getText().toString();
+        String location = etLocation.getText().toString();
+        String date = etDate.getText().toString();
+        String length = etLength.getText().toString();
+        String desc = etDesc.getText().toString();
+        String weather = etWeather.getText().toString();
+        String companions = etCompanions.getText().toString();
+        String difficulty = spinnerDifficulty.getSelectedItem().toString();
+        String parking = radioYes.isChecked() ? "Yes" : "No";
+
+        Hike hike = new Hike(hikeId, name, location, date, parking, length, difficulty, desc, weather, companions);
+
+        dbHelper.updateHike(hike);
+
+        Toast.makeText(this, "Hike updated successfully!", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    private void saveHikeToDatabase(String name, String location, String date, String parking, String length, String difficulty) {
+        String desc = etDesc.getText().toString();
+        String weather = etWeather.getText().toString();
+        String companions = etCompanions.getText().toString();
+
+        long id = dbHelper.insertHike(name, location, date, parking, length, difficulty, desc, weather, companions);
+
+        if (id > 0) {
+            Toast.makeText(this, "Hike saved successfully!", Toast.LENGTH_SHORT).show();
+            finish();
+        } else {
+            Toast.makeText(this, "Failed to save hike", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean validateInput() {
@@ -104,7 +171,6 @@ public class AddHikeActivity extends AppCompatActivity {
             etLength.setError("Length is required");
             return false;
         }
-        // Kiểm tra RadioButton Parking
         if (radioGroupParking.getCheckedRadioButtonId() == -1) {
             Toast.makeText(this, "Please select Parking availability", Toast.LENGTH_SHORT).show();
             return false;
@@ -118,7 +184,6 @@ public class AddHikeActivity extends AppCompatActivity {
         String date = etDate.getText().toString();
         String length = etLength.getText().toString();
         String difficulty = spinnerDifficulty.getSelectedItem().toString();
-
         String parking = radioYes.isChecked() ? "Yes" : "No";
 
         String message = "Name: " + name + "\n" +
@@ -136,20 +201,5 @@ public class AddHikeActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
-    }
-
-    private void saveHikeToDatabase(String name, String location, String date, String parking, String length, String difficulty) {
-        String desc = etDesc.getText().toString();
-        String weather = etWeather.getText().toString();
-        String companions = etCompanions.getText().toString();
-
-        long id = dbHelper.insertHike(name, location, date, parking, length, difficulty, desc, weather, companions);
-
-        if (id > 0) {
-            Toast.makeText(this, "Hike saved successfully!", Toast.LENGTH_SHORT).show();
-            finish();
-        } else {
-            Toast.makeText(this, "Failed to save hike", Toast.LENGTH_SHORT).show();
-        }
     }
 }

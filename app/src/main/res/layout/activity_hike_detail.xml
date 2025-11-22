@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvDetailName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hike Name"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:gravity="center"/>
+
+        <TextView android:id="@+id/tvDetailLocation" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Location: ..." android:textSize="16sp" android:layout_marginTop="8dp"/>
+        <TextView android:id="@+id/tvDetailDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Date: ..." android:textSize="16sp" android:layout_marginTop="4dp"/>
+        <TextView android:id="@+id/tvDetailParking" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Parking: ..." android:textSize="16sp" android:layout_marginTop="4dp"/>
+        <TextView android:id="@+id/tvDetailLength" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Length: ..." android:textSize="16sp" android:layout_marginTop="4dp"/>
+        <TextView android:id="@+id/tvDetailDifficulty" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Difficulty: ..." android:textSize="16sp" android:layout_marginTop="4dp"/>
+        <TextView android:id="@+id/tvDetailWeather" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Weather: ..." android:textSize="16sp" android:layout_marginTop="4dp"/>
+        <TextView android:id="@+id/tvDetailCompanions" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Companions: ..." android:textSize="16sp" android:layout_marginTop="4dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description:"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"/>
+        <TextView
+            android:id="@+id/tvDetailDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="..."
+            android:layout_marginTop="4dp"/>
+
+        <Button
+            android:id="@+id/btnEditHike"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Edit Hike Details"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#FF9800"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="30dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Observations"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#009688"/>
+
+            <Button
+                android:id="@+id/btnAddObservation"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="+ Add"
+                android:textSize="12sp"
+                android:backgroundTint="#009688"/>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerObservations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:nestedScrollingEnabled="false"/>
+
+        <TextView
+            android:id="@+id/tvEmptyObs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No observations yet."
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+</ScrollView>

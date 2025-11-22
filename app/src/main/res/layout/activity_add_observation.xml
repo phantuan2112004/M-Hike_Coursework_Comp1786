@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Observation Details"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"/>
+
+    <EditText
+        android:id="@+id/etObsName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Observation (e.g. Saw a squirrel) *" />
+
+    <EditText
+        android:id="@+id/etObsTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Time *"
+        android:layout_marginTop="12dp"/>
+
+    <EditText
+        android:id="@+id/etObsComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Comments (Optional)"
+        android:layout_marginTop="12dp"
+        android:minLines="2"/>
+
+    <Button
+        android:id="@+id/btnSaveObs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Observation"
+        android:layout_marginTop="24dp"/>
+
+</LinearLayout>
